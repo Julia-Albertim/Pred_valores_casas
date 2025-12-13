@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💰 Predição de Preço de Casas</title>
+
+  <style>
+    body {
+      background: linear-gradient(120deg, #004aad, #007bff);
+      font-family: "Poppins", sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      padding: 2rem 3rem;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+      color: #004aad;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 500;
+      margin: 0.8rem 0 0.2rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border: 1px solid #004aad;
+    }
+
+    button {
+      background: #004aad;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #003580;
+    }
+
+    #resultado {
+      margin-top: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #004aad;
+      background: #eaf3ff;
+      padding: 1rem;
+      border-radius: 10px;
+      display: none;
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💰 Sistema de Previsão de Preço de Casas</h1>
+
+    <form id="priceForm">
+      <label>Metragem quadrada (m²)</label>
+      <input type="number" id="squareFootage" required />
+
+      <label>Quartos</label>
+      <input type="number" id="bedrooms" required />
+
+      <label>Banheiros</label>
+      <input type="number" id="bathrooms" required />
+
+      <label>Ano de construção</label>
+      <input type="number" id="yearBuilt" required />
+
+      <label>Tamanho do lote (m²)</label>
+      <input type="number" id="lotSize" required />
+
+      <label>Tamanho da garagem</label>
+      <input type="number" id="garageSize" required />
+
+      <label>Qualidade do bairro (1–10)</label>
+      <input type="number" id="neighborhoodQuality" required />
+
+      <button type="submit">🔍 Prever Preço</button>
+    </form>
+
+    <div id="resultado"></div>
+    <footer></footer>
+  </div>
+
+  <script>
+    document.getElementById("priceForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const dados = {
+        squareFootage: parseFloat(document.getElementById("squareFootage").value),
+        bedrooms: parseFloat(document.getElementById("bedrooms").value),
+        bathrooms: parseFloat(document.getElementById("bathrooms").value),
+        yearBuilt: parseFloat(document.getElementById("yearBuilt").value),
+        lotSize: parseFloat(document.getElementById("lotSize").value),
+        garageSize: parseFloat(document.getElementById("garageSize").value),
+        neighborhoodQuality: parseFloat(document.getElementById("neighborhoodQuality").value),
+      };
+
+      const resultadoDiv = document.getElementById("resultado");
+      resultadoDiv.style.display = "none";
+
+      try {
+        const resp = await fetch("/prever", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+
+        const resultado = await resp.json();
+
+        if (resultado.price) {
+          resultadoDiv.innerHTML = `🏠 Preço previsto: <br><strong>R$ ${resultado.price.toLocaleString(
+            "pt-BR"
+          )}</strong>`;
+          resultadoDiv.style.display = "block";
+        } else {
+          resultadoDiv.innerHTML = `Erro: ${resultado.error}`;
+          resultadoDiv.style.display = "block";
+        }
+      } catch (err) {
+        resultadoDiv.innerHTML = "❌ Erro ao conectar com o servidor.";
+        resultadoDiv.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
